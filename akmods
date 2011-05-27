@@ -498,4 +498,4 @@ for kernel in ${kernels} ; do
 done
 
 # finished :)
-finally 0
+#finally 0

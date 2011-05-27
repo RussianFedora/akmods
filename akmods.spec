@@ -67,12 +67,10 @@ install -D -p -m 0755 %{SOURCE2} $RPM_BUILD_ROOT/%{_bindir}/akmodsbuild
 install -D -p -m 0644 %{SOURCE3} ${RPM_BUILD_ROOT}%{_mandir}/man1/akmodsbuild.1
 
 %if 0%{?fedora} >= 15
-install -D -p -m 0644 %{SOURCE7} $RPM_BUILD_ROOT/lib/systemd/system/akmods.service
+install -D -p -m 0644 %{SOURCE7} $RPM_BUILD_ROOT/%{_unitdir}/akmods.service
 %else
 install -D -p -m 0755 %{SOURCE4} $RPM_BUILD_ROOT/%{_initrddir}/akmods
 %endif
-
-
 
 # %%{_sysconfdir}/kernel/posttrans.d/ should be owned my mkinitrd #441111
 install -D -p -m 0755 %{SOURCE6} $RPM_BUILD_ROOT/%{_sysconfdir}/kernel/postinst.d/akmods
@@ -88,6 +86,11 @@ useradd -r -g akmods -d /var/cache/akmods/ -s /sbin/nologin \
     -c "User is used by akmods to build akmod packages" akmods
 
 %post
+%if 0%{?fedora} >= 15
+if [ $1 = 1 ]; then
+    systemctl enable akmods.service
+fi
+%else
 # add init script
 /sbin/chkconfig --add akmods
 # enable init script; users that installed akmods directly or indirectly
@@ -95,12 +98,14 @@ useradd -r -g akmods -d /var/cache/akmods/ -s /sbin/nologin \
 if [ $1 = 1 ]; then
    /sbin/chkconfig akmods on
 fi
+%endif
 
 %preun
+%if 0%{?fedora} < 15
 if [ $1 = 0 ]; then
    /sbin/chkconfig --del akmods
 fi
-
+%endif
 
 %files 
 %defattr(-,root,root,-)
@@ -108,11 +113,20 @@ fi
 %{_localstatedir}/cache/akmods/
 %{_bindir}/akmodsbuild
 %{_sbindir}/akmods
+
+%if 0%{?fedora} >= 15
+%{_unitdir}/akmods.service
+%else
 %{_initrddir}/akmods
+%endif
+
 %{_sysconfdir}/kernel/postinst.d/akmods
 %{_mandir}/man1/*
 
 %changelog
+* Sat May 28 2011 Alexei Panov <elemc [AT] atisserv [DOT] ru> - 0.3.6-3.1.R
+- adapted package for systemd
+
 * Sun Aug 02 2009 Thorsten Leemhuis <fedora [AT] leemhuis [DOT] info> - 0.3.6-3
 - add lockfile as hard dep
 
