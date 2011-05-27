@@ -1,3 +1,8 @@
+#%if 0%{?_unitdir}
+#%define _unitdir /lib/systemd/system
+#%endif
+%{?_unitdir:%define _unitdir /lib/systemd/system}
+
 Name:           akmods
 Version:        0.3.6
 Release:        3%{?dist}.1.R
