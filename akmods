@@ -175,7 +175,7 @@ init ()
 	# if there are no akmod packages installed there is nothing to do for us
 	if ! ls /usr/src/akmods/*-kmod.latest &> /dev/null ; then
 		echo -n "No akmod packages found, nothing to do." >&2
-		echo_success; echo; exit 1
+		echo_success; echo; exit 0
 	fi
 
 
